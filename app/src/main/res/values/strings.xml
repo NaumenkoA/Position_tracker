@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Position Tracker</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="api_key">AIzaSyC_6-Bieq7ovetzGt_nwsRfHLBBNICruPQ</string>
+    <string name="get_current_position">get current position</string>
+    <string name="record_my_position">Record my position:</string>
+</resources>
