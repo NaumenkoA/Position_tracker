@@ -5,7 +5,6 @@ import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -15,7 +14,6 @@ import com.example.alex.positiontracker.database.LocationDataSource;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
-import java.util.Timer;
 import java.util.TimerTask;
 
 public class LocationThread extends Thread implements LocationProvider.LocationCallback {
@@ -23,22 +21,18 @@ public class LocationThread extends Thread implements LocationProvider.LocationC
     private Context mContext;
     private LocationDataSource mLocationDataSource;
     private int mLocationNotificationTime;
-    private Timer mTimer;
     private NotificationManager mNotificationManager;
 
     public void setLocationNotificationTime(int locationNotificationTime) {
         mLocationNotificationTime = locationNotificationTime;
          if (mLocationNotificationTime > 0) {
-             setNewNotification();
-         } else {
-            mTimer.cancel();
+
          }
     }
 
+
     private void setNewNotification() {
-        NotificationTask notificationTask = new NotificationTask();
-        mTimer = new Timer(true);
-        mTimer.schedule(notificationTask, mLocationNotificationTime*1000, 60*1000);
+
     }
 
     public LocationThread (Context context) {
@@ -102,8 +96,7 @@ public class LocationThread extends Thread implements LocationProvider.LocationC
                 setContentTitle("Too long in same place").
                 setContentText("You are too long in the same place! Let's move on!");
                 mNotificationManager.notify(001, builder.build());
-                mTimer.cancel();
-             }
+               }
 
             }
         }

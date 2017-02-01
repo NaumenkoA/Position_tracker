@@ -38,8 +38,6 @@ public class LocationService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        int notificationTime = intent.getIntExtra(MainActivity.LOCATION_NOTIFICATION_TIME, 0);
-        mLocationThread.setLocationNotificationTime(notificationTime);
         return null;
         }
 }
