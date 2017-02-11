@@ -4,4 +4,10 @@
     <string name="api_key">AIzaSyC_6-Bieq7ovetzGt_nwsRfHLBBNICruPQ</string>
     <string name="get_current_position">get current position</string>
     <string name="record_my_position">Record my position:</string>
+    <string name="from">From:</string>
+    <string name="to">To:</string>
+    <string name="dots">...</string>
+    <string name="show_my_locations">SHOW MY LOCATIONS OVER PERIOD</string>
+    <string name="show_notification">Show notification when I\'m in the same place:</string>
+    <string name="submit">SUBMIT</string>
 </resources>

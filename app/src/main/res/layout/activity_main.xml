@@ -21,6 +21,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/record_my_position"
+        android:textSize="20sp"
         android:paddingRight="20dp"
         android:paddingEnd="20dp"
         android:id="@+id/switchPositionTrackingTextView"/>
@@ -31,5 +32,121 @@
         android:layout_toRightOf="@+id/switchPositionTrackingTextView"
         android:layout_toEndOf="@id/switchPositionTrackingTextView"
         android:id="@+id/locationSwitch"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_below="@+id/locationSwitch"
+        android:id="@+id/divider1"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/divider1"
+        android:layout_above="@+id/divider2"
+        android:orientation="vertical">
+
+        <TextView
+            android:text="@string/show_notification"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_weight="1"/>
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:id="@+id/notificationSpinner">
+
+        </Spinner>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_above="@+id/fromLayout"
+        android:id="@+id/divider2"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="20dp"
+        android:layout_above="@+id/toLayout"
+        android:id="@+id/fromLayout"
+        android:orientation="horizontal">
+
+        <TextView
+            android:text="@string/from"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:textSize="20sp"
+            tools:text="04 February 2017"
+            android:id="@+id/fromDateTextView"/>
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/selectFromDateButton"
+            android:text="@string/dots"
+            android:layout_weight="0.5"/>
+
+     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="20dp"
+        android:paddingBottom="40dp"
+        android:layout_above="@+id/showMapButton"
+        android:id="@+id/toLayout"
+        android:orientation="horizontal">
+
+        <TextView
+            android:text="@string/to"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:textSize="20sp"
+            tools:text="04 February 2017"
+            android:id="@+id/toDateTextView"/>
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/dots"
+            android:id="@+id/selectToDateButton"
+            android:layout_weight="0.5"/>
+
+    </LinearLayout>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/showMapButton"
+        android:text="@string/show_my_locations"
+        android:layout_alignParentBottom="true"/>
 
 </RelativeLayout>
