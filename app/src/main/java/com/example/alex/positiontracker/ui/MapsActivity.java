@@ -1,8 +1,15 @@
 package com.example.alex.positiontracker.ui;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.text.InputType;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.alex.positiontracker.R;
@@ -18,16 +25,24 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private ArrayList<UserLocation> mUserLocations;
     private LocationDataSource mLocationDataSource;
+    private long mFromDate;
+    private long mToDate;
+
+    @BindView(R.id.sendResultsButton) Button mSendResultsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        ButterKnife.bind(this);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -36,11 +51,66 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mUserLocations = new ArrayList<>();
         mLocationDataSource = new LocationDataSource(this);
         Intent intent = getIntent();
-        long fromDate = intent.getLongExtra(MainActivity.USER_SELECTED_FROM_DATE, 0);
-        long toDate = intent.getLongExtra(MainActivity.USER_SELECTED_TO_DATE, 0);
-        if (fromDate != 0 && toDate != 0) {
-            mUserLocations = mLocationDataSource.getLocationsForTimePeriod (fromDate, toDate);
+        mFromDate = intent.getLongExtra(MainActivity.USER_SELECTED_FROM_DATE, 0);
+        mToDate = intent.getLongExtra(MainActivity.USER_SELECTED_TO_DATE, 0);
+        if (mFromDate != 0 && mToDate != 0) {
+            mUserLocations = mLocationDataSource.getLocationsForTimePeriod (mFromDate, mToDate);
         }
+        mSendResultsButton.setEnabled(mUserLocations.size() > 0);
+        mSendResultsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
+                builder.setTitle("Enter your e-mail address");
+                final EditText input = new EditText(MapsActivity.this);
+                input.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_SUBJECT);
+                builder.setView(input);
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String message = createMessageWithUserLocations();
+                        String userMail = input.getText().toString();
+                        String subject = "My locations " + " from " + MainActivity.getStringFromUnixTime(mFromDate) + " to " + MainActivity.getStringFromUnixTime(mToDate);
+                        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse ("mailto:" + userMail));
+                        emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+                        emailIntent.putExtra(Intent.EXTRA_TEXT, message);
+                        startActivity(Intent.createChooser(emailIntent, "Choose app to send e-mail:"));
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                builder.show();
+                }
+        });
+    }
+
+    private String createMessageWithUserLocations() {
+        StringBuilder stringBuilder = new StringBuilder();
+        String time;
+        String longitude;
+        String latitude;
+        String address;
+        String newLine;
+        if (mUserLocations.size() == 0) {
+            return "No locations were recorded over the period" + " from " +
+                    MainActivity.getStringFromUnixTime(mFromDate) + " to " + MainActivity.getStringFromUnixTime(mToDate);
+        }
+        stringBuilder.append("Locations recorded over the period" + " from " +
+        MainActivity.getStringFromUnixTime(mFromDate) + " to " + MainActivity.getStringFromUnixTime(mToDate) + "\n\n");
+
+        for (UserLocation location: mUserLocations) {
+            time = location.getFormattedTime();
+            longitude = Double.toString(location.getLongitude());
+            latitude = Double.toString(location.getLatitude());
+            address = location.getAddress();
+            newLine = time + ", long: " + longitude + " lat: " + latitude + ", address: " + address + "\n";
+            stringBuilder.append(newLine);
+        }
+        return stringBuilder.toString();
     }
 
 
@@ -71,6 +141,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         } else {
             Toast.makeText(this, "No locations were found", Toast.LENGTH_SHORT).show();
-        }
+         }
     }
 }

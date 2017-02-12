@@ -20,6 +20,7 @@ public class DatePickerActivity extends AppCompatActivity {
     @BindView(R.id.submitButton) Button mSubmitButton;
     @BindView(R.id.datePicker) DatePicker mDatePicker;
 
+    private boolean mIsEndOfDay;
     public static final String RESULT = "result";
 
     @Override
@@ -29,14 +30,22 @@ public class DatePickerActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         Intent intent = getIntent();
-        long selectedDate = intent.getLongExtra(MainActivity.USER_SELECTED_DATE, System.currentTimeMillis());
-        updateDatePicker (selectedDate);
+        long selectedFromDate = intent.getLongExtra(MainActivity.USER_SELECTED_FROM_DATE, 0);
+        long selectedToDate = intent.getLongExtra(MainActivity.USER_SELECTED_TO_DATE, 0);
+        if (selectedFromDate !=0) {
+            updateDatePicker(selectedFromDate);
+            mIsEndOfDay = false;
+        } else {
+            updateDatePicker(selectedToDate);
+            mIsEndOfDay = true;
+        }
+
 
         mSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent();
-                intent.putExtra(RESULT, getDateFromDatePicker());
+                intent.putExtra(RESULT, getDateFromDatePicker(mIsEndOfDay));
                 setResult(RESULT_OK, intent);
                 finish();
             }
@@ -53,14 +62,23 @@ public class DatePickerActivity extends AppCompatActivity {
         mDatePicker.updateDate(year, month, day);
     }
 
-    private long getDateFromDatePicker(){
+    private long getDateFromDatePicker(boolean endOfDay){
         int day = mDatePicker.getDayOfMonth();
         int month = mDatePicker.getMonth();
         int year = mDatePicker.getYear();
+        int hour;
+        int minute;
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month, day);
+        if (endOfDay) {
+            hour = 23;
+            minute = 59;
+        } else {
+            hour = 0;
+            minute = 0;
+        }
 
+        calendar.set(year, month, day, hour, minute);
         return calendar.getTimeInMillis();
     }
 }

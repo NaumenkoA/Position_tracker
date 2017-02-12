@@ -8,6 +8,9 @@
     <string name="to">To:</string>
     <string name="dots">...</string>
     <string name="show_my_locations">SHOW MY LOCATIONS OVER PERIOD</string>
-    <string name="show_notification">Show notification when I\'m in the same place:</string>
+    <string name="show_notification">SHOW ME NOTIFICATION</string>
     <string name="submit">SUBMIT</string>
+    <string name="send_results">SEND RESULTS BY E-MAIL</string>
+    <string name="notification_period">In the same place for: </string>
+    <string name="_1_00">1:00</string>
 </resources>

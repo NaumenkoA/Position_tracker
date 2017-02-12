@@ -45,6 +45,8 @@
 
         <activity android:name=".ui.DatePickerActivity">
         </activity>
+        <activity android:name=".ui.TimePickerActivity">
+        </activity>
     </application>
 
 </manifest>

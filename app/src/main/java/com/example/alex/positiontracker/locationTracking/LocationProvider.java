@@ -27,7 +27,6 @@ public class LocationProvider implements
 
     public static final String TAG = LocationProvider.class.getSimpleName();
 
-    public static final int PERMISSIONS_REQUEST_CODE = 9001;
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
     private LocationCallback mLocationCallback;
@@ -94,26 +93,6 @@ public class LocationProvider implements
     @Override
     public void onConnectionSuspended(int i) {
 
-    }
-
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_CODE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // permission was granted, yay!
-                    getLocation();
-                } else {
-
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                }
-                return;
-            }
-        }
     }
 
     @Override

@@ -109,7 +109,7 @@ public class LocationDataSource {
                 new String[] {fromDateAsString, toDateAsString},
                 null,
                 null,
-                null);
+                BaseColumns._ID +" ASC");
         if (cursor.moveToFirst()) {
             do {
                 latitude = getDoubleFromColumnName(cursor, LocationSQLiteHelper.COLUMN_LATITUDE);

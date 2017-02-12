@@ -22,16 +22,18 @@ public class LocationService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.v (TAG, "Location service is started");
+        int notificationTime = intent.getIntExtra(MainActivity.LOCATION_NOTIFICATION_TIME, 0);
         mLocationThread.start();
         NotificationManager manager = (NotificationManager) getSystemService (NOTIFICATION_SERVICE);
         mLocationThread.setNotificationManager(manager);
-        mLocationThread.setLocationNotificationTime(60*30);
+        mLocationThread.setLocationNotificationTime(notificationTime);
         return Service.START_STICKY;
 }
 
     @Override
     public void onDestroy() {
         Log.v (TAG, "Location service is stopped");
+        mLocationThread.interrupt();
         super.onDestroy();
     }
 

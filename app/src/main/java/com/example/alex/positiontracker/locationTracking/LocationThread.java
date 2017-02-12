@@ -10,29 +10,50 @@ import android.util.Log;
 
 import com.example.alex.positiontracker.R;
 import com.example.alex.positiontracker.database.LocationDataSource;
+import com.google.android.gms.tasks.Task;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class LocationThread extends Thread implements LocationProvider.LocationCallback {
     private static final String TAG = LocationThread.class.getSimpleName();
+    private static final int NOTIFICATION_CODE = 1;
     private Context mContext;
     private LocationDataSource mLocationDataSource;
     private int mLocationNotificationTime;
     private NotificationManager mNotificationManager;
+    private ScheduledExecutorService mScheduledExecutorService;
 
-    public void setLocationNotificationTime(int locationNotificationTime) {
+    void setLocationNotificationTime(int locationNotificationTime) {
         mLocationNotificationTime = locationNotificationTime;
          if (mLocationNotificationTime > 0) {
-
+            setNewNotification();
          }
     }
 
-
     private void setNewNotification() {
-
+        mScheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                long lastLocationUpdateTime = mLocationDataSource.getLastLocationTime();
+                Log.v(TAG, "Notification task is running");
+                if ((System.currentTimeMillis() - lastLocationUpdateTime - mLocationNotificationTime *60* 1000) >= 0) {
+                    NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext).
+                            setSmallIcon(R.drawable.ic_schedule_black_24dp).
+                            setContentTitle("Too long in same place").
+                            setContentText("You are too long in the same place! Let's move on!");
+                    mNotificationManager.notify(NOTIFICATION_CODE, builder.build());
+                    mScheduledExecutorService.shutdown();
+                }
+            }
+        };
+        mScheduledExecutorService.schedule(runnable, 1, TimeUnit.MINUTES);
     }
 
     public LocationThread (Context context) {
@@ -48,15 +69,18 @@ public class LocationThread extends Thread implements LocationProvider.LocationC
           }
 
     @Override
+    public void interrupt() {
+        Log.v (TAG, "Location thread is stopped" + "");
+        super.interrupt();
+    }
+
+    @Override
     public void handleNewLocation(Location location) {
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
 
-            Log.v(TAG, "New location logged");
-
-            if (mLocationNotificationTime > 0) {
-                setNewNotification();
-            }
+        Log.v(TAG, "New location logged");
+        setNewNotification();
 
             Geocoder geocoder;
 
@@ -83,21 +107,4 @@ public class LocationThread extends Thread implements LocationProvider.LocationC
     public void setNotificationManager(NotificationManager notificationManager) {
         mNotificationManager = notificationManager;
     }
-
-    public class NotificationTask extends TimerTask {
-
-        @Override
-        public void run() {
-            long lastLocationUpdateTime = mLocationDataSource.getLastLocationTime();
-            Log.v (TAG, "Notification task is running");
-            if ((System.currentTimeMillis() -  lastLocationUpdateTime - mLocationNotificationTime*1000) >=0 ){
-                NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext).
-                setSmallIcon(R.drawable.places_ic_search).
-                setContentTitle("Too long in same place").
-                setContentText("You are too long in the same place! Let's move on!");
-                mNotificationManager.notify(001, builder.build());
-               }
-
-            }
-        }
-    }
+}

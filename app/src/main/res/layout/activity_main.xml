@@ -31,6 +31,8 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/switchPositionTrackingTextView"
         android:layout_toEndOf="@id/switchPositionTrackingTextView"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:id="@+id/locationSwitch"/>
 
     <View
@@ -45,24 +47,61 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
         android:layout_below="@+id/divider1"
         android:layout_above="@+id/divider2"
         android:orientation="vertical">
 
-        <TextView
-            android:text="@string/show_notification"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_weight="1"/>
-        <Spinner
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="top"
-            android:id="@+id/notificationSpinner">
+            android:orientation="horizontal">
 
-        </Spinner>
+            <TextView
+                android:text="@string/show_notification"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+
+            <Switch
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:id="@+id/notificationSwitch"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="15dp">
+
+            <TextView
+                android:text="@string/notification_period"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:layout_weight="3"/>
+
+            <TextView
+                android:text="@string/_1_00"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:id="@+id/notificationPeriodTextView"
+                android:layout_weight="1"/>
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/selectNotificationPeriodButton"
+                android:text="@string/dots"
+                android:layout_weight="0.5"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 

@@ -1,5 +1,9 @@
 package com.example.alex.positiontracker.locationTracking;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class UserLocation {
     private double mLatitude;
     private double mLongitude;
@@ -7,7 +11,11 @@ public class UserLocation {
     String mAddress;
 
     public String getAddress() {
-        return mAddress;
+        if (!mAddress.equals("null")) {
+            return mAddress;
+        } else {
+            return "";
+        }
     }
 
     public void setAddress(String address) {
@@ -32,6 +40,13 @@ public class UserLocation {
 
     public long getTime() {
         return mTime;
+    }
+
+    public String getFormattedTime() {
+        Date date = new Date (mTime);
+        Locale locale = Locale.getDefault();
+        SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-YYYY h:mm a", locale);
+        return formatter.format(date);
     }
 
     public void setTime(long time) {
