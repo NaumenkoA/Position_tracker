@@ -30,9 +30,7 @@ import butterknife.ButterKnife;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private GoogleMap mMap;
     private ArrayList<UserLocation> mUserLocations;
-    private LocationDataSource mLocationDataSource;
     private long mFromDate;
     private long mToDate;
 
@@ -49,12 +47,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
         //Searching for positions over requested period
         mUserLocations = new ArrayList<>();
-        mLocationDataSource = new LocationDataSource(this);
+        LocationDataSource locationDataSource = new LocationDataSource(this);
         Intent intent = getIntent();
         mFromDate = intent.getLongExtra(MainActivity.USER_SELECTED_FROM_DATE, 0);
         mToDate = intent.getLongExtra(MainActivity.USER_SELECTED_TO_DATE, 0);
         if (mFromDate != 0 && mToDate != 0) {
-            mUserLocations = mLocationDataSource.getLocationsForTimePeriod (mFromDate, mToDate);
+            mUserLocations = locationDataSource.getLocationsForTimePeriod (mFromDate, mToDate);
         }
         mSendResultsButton.setEnabled(mUserLocations.size() > 0);
         mSendResultsButton.setOnClickListener(new View.OnClickListener() {
@@ -99,8 +97,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return "No locations were recorded over the period" + " from " +
                     MainActivity.getStringFromUnixTime(mFromDate) + " to " + MainActivity.getStringFromUnixTime(mToDate);
         }
-        stringBuilder.append("Locations recorded over the period" + " from " +
-        MainActivity.getStringFromUnixTime(mFromDate) + " to " + MainActivity.getStringFromUnixTime(mToDate) + "\n\n");
+        stringBuilder.append("Locations recorded over the period" + " from ").append(MainActivity.getStringFromUnixTime(mFromDate)).append(" to ").append(MainActivity.getStringFromUnixTime(mToDate)).append("\n\n");
 
         for (UserLocation location: mUserLocations) {
             time = location.getFormattedTime();
@@ -125,18 +122,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
         if (mUserLocations.size() != 0) {
             LatLng latLng;
             int count = 0;
             for (UserLocation location:mUserLocations){
                 count++;
                 latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                mMap.addMarker(new MarkerOptions().position(latLng));
+                googleMap.addMarker(new MarkerOptions().position(latLng));
                 if (count == mUserLocations.size()) {
-                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                     CameraUpdate zoom=CameraUpdateFactory.zoomTo(10);
-                    mMap.animateCamera(zoom);
+                    googleMap.animateCamera(zoom);
                 }
             }
         } else {

@@ -14,28 +14,26 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.LocationSource;
 
 public class LocationProvider implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
-    public interface LocationCallback {
+    interface LocationCallback {
         void handleNewLocation(Location location);
     }
 
-    public static final String TAG = LocationProvider.class.getSimpleName();
+    private static final String TAG = LocationProvider.class.getSimpleName();
 
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
     private LocationCallback mLocationCallback;
     private Context mContext;
-    Activity mActivity;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
 
-    public LocationProvider(Context context, LocationCallback callback) {
+    LocationProvider(Context context, LocationCallback callback) {
         mGoogleApiClient = new GoogleApiClient.Builder(context)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -43,9 +41,6 @@ public class LocationProvider implements
                 .build();
 
         mLocationCallback = callback;
-        if (context instanceof Activity) {
-            mActivity = (Activity) context;
-        }
 
         // Create the LocationRequest object
         mLocationRequest = LocationRequest.create()
@@ -57,7 +52,7 @@ public class LocationProvider implements
         mContext = context;
     }
 
-    public void connect() {
+    void connect() {
         mGoogleApiClient.connect();
     }
 

@@ -10,17 +10,15 @@ import android.util.Log;
 
 import com.example.alex.positiontracker.R;
 import com.example.alex.positiontracker.database.LocationDataSource;
-import com.google.android.gms.tasks.Task;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class LocationThread extends Thread implements LocationProvider.LocationCallback {
+class LocationThread extends Thread implements LocationProvider.LocationCallback {
     private static final String TAG = LocationThread.class.getSimpleName();
     private static final int NOTIFICATION_CODE = 1;
     private Context mContext;
@@ -56,7 +54,7 @@ public class LocationThread extends Thread implements LocationProvider.LocationC
         mScheduledExecutorService.schedule(runnable, 1, TimeUnit.MINUTES);
     }
 
-    public LocationThread (Context context) {
+    LocationThread(Context context) {
         mContext = context;
         mLocationDataSource = new LocationDataSource(mContext);
     }
@@ -104,7 +102,7 @@ public class LocationThread extends Thread implements LocationProvider.LocationC
             mLocationDataSource.addItem(newLocation);
         }
 
-    public void setNotificationManager(NotificationManager notificationManager) {
+    void setNotificationManager(NotificationManager notificationManager) {
         mNotificationManager = notificationManager;
     }
 }

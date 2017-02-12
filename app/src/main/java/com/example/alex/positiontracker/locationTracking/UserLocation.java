@@ -7,8 +7,8 @@ import java.util.Locale;
 public class UserLocation {
     private double mLatitude;
     private double mLongitude;
-    long mTime;
-    String mAddress;
+    private long mTime;
+    private String mAddress;
 
     public String getAddress() {
         if (!mAddress.equals("null")) {
@@ -18,24 +18,12 @@ public class UserLocation {
         }
     }
 
-    public void setAddress(String address) {
-        mAddress = address;
-    }
-
     public double getLatitude() {
         return mLatitude;
     }
 
-    public void setLatitude(double latitude) {
-        mLatitude = latitude;
-    }
-
     public double getLongitude() {
         return mLongitude;
-    }
-
-    public void setLongitude(double longitude) {
-        mLongitude = longitude;
     }
 
     public long getTime() {
