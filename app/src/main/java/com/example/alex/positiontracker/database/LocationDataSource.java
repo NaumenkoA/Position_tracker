@@ -9,6 +9,8 @@ import android.provider.BaseColumns;
 
 import com.example.alex.positiontracker.locationTracking.UserLocation;
 
+import java.util.ArrayList;
+
 public class LocationDataSource {
     private LocationSQLiteHelper mLocationSQLiteHelper;
 
@@ -88,5 +90,39 @@ public class LocationDataSource {
         database.endTransaction();
         close(database);
         return time;
+    }
+
+    public ArrayList<UserLocation> getLocationsForTimePeriod(long fromDate, long toDate) {
+        ArrayList <UserLocation> locations = new ArrayList<>();
+        String fromDateAsString = Long.toString(fromDate);
+        String toDateAsString = Long.toString(toDate);
+        double latitude;
+        double longitude;
+        long time;
+        String address;
+
+        SQLiteDatabase database = open();
+        database.beginTransaction();
+        Cursor cursor = database.query(LocationSQLiteHelper.USER_POSITIONS_TABLE,
+                new String[] {BaseColumns._ID, LocationSQLiteHelper.COLUMN_LONGITUDE, LocationSQLiteHelper.COLUMN_LATITUDE, LocationSQLiteHelper.COLUMN_ADDRESS, LocationSQLiteHelper.COLUMN_TIME},
+                LocationSQLiteHelper.COLUMN_TIME + "> ? AND " + LocationSQLiteHelper.COLUMN_TIME + "< ?",
+                new String[] {fromDateAsString, toDateAsString},
+                null,
+                null,
+                null);
+        if (cursor.moveToFirst()) {
+            do {
+                latitude = getDoubleFromColumnName(cursor, LocationSQLiteHelper.COLUMN_LATITUDE);
+                longitude = getDoubleFromColumnName(cursor, LocationSQLiteHelper.COLUMN_LONGITUDE);
+                time = getLongFromColumnName(cursor, LocationSQLiteHelper.COLUMN_TIME);
+                address = getStringFromColumnName(cursor, LocationSQLiteHelper.COLUMN_ADDRESS);
+                UserLocation location = new UserLocation(time, latitude, longitude, address);
+                locations.add(location);
+            } while (cursor.moveToNext());
+        }
+        database.setTransactionSuccessful();
+        database.endTransaction();
+        close(database);
+        return locations;
     }
 }

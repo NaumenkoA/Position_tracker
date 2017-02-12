@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.alex.positiontracker.R;
 import com.example.alex.positiontracker.database.LocationDataSource;
@@ -37,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String LOCATION_TRACKING_STATE = "location_tracking_state";
     public static final String USER_SELECTED_DATE = "selected_date";
+    public static final String USER_SELECTED_FROM_DATE = "selected_from_date";
+    public static final String USER_SELECTED_TO_DATE = "selected_to_date";
     public static final String LOCATION_NOTIFICATION_TIME = "location_notification_time";
     public static final int FROM_DATE_REQUEST = 101;
     public static final int TO_DATE_REQUEST = 102;
@@ -61,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    @BindView(R.id.locationSwitch) Switch mLocationSwitch;
+
 
     @Override
     protected void onStop() {
@@ -71,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
     }
 
+    @BindView(R.id.locationSwitch) Switch mLocationSwitch;
+    @BindView(R.id.showMapButton) Button mMapButton;
     @BindView(R.id.selectFromDateButton) Button mFromDateButton;
     @BindView(R.id.selectToDateButton) Button mToDateButton;
     @BindView(R.id.fromDateTextView) TextView mFromDateTextView;
@@ -126,6 +131,20 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, DatePickerActivity.class);
                 intent.putExtra(USER_SELECTED_DATE, mSelectedToDate);
                 startActivityForResult(intent, TO_DATE_REQUEST);
+            }
+        });
+
+        mMapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mSelectedFromDate > mSelectedToDate) {
+                    Toast.makeText(MainActivity.this, "Please select correct date period", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+                intent.putExtra(USER_SELECTED_FROM_DATE, mSelectedFromDate);
+                intent.putExtra(USER_SELECTED_TO_DATE, mSelectedToDate);
+                startActivity(intent);
             }
         });
     }
