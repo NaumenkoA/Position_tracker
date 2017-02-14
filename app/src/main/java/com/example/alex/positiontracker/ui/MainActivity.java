@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private long mSelectedToDate;
 
     //notification time in minutes
-    private int mLocationNotificationTime;
+    private int mLocationNotificationTime = 60;
 
     @Override
     protected void onStop() {
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked) {
                     mIsNotificationActivated = true;
-                    setNotification(true);
+                    //setNotification(true);
                 } else {
                     mIsNotificationActivated = false;
                 }

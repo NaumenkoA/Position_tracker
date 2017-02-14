@@ -23,35 +23,37 @@ class LocationThread extends Thread implements LocationProvider.LocationCallback
     private static final int NOTIFICATION_CODE = 1;
     private Context mContext;
     private LocationDataSource mLocationDataSource;
-    private int mLocationNotificationTime;
+    private int mLocationNotificationTime = 60;
     private NotificationManager mNotificationManager;
     private ScheduledExecutorService mScheduledExecutorService;
 
     void setLocationNotificationTime(int locationNotificationTime) {
         mLocationNotificationTime = locationNotificationTime;
-         if (mLocationNotificationTime > 0) {
-            setNewNotification();
-         }
+        setNewNotification();
     }
 
     private void setNewNotification() {
-        mScheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                long lastLocationUpdateTime = mLocationDataSource.getLastLocationTime();
-                Log.v(TAG, "Notification task is running");
-                if ((System.currentTimeMillis() - lastLocationUpdateTime - mLocationNotificationTime *60* 1000) >= 0) {
-                    NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext).
-                            setSmallIcon(R.drawable.ic_schedule_black_24dp).
-                            setContentTitle("Too long in same place").
-                            setContentText("You are too long in the same place! Let's move on!");
-                    mNotificationManager.notify(NOTIFICATION_CODE, builder.build());
-                    mScheduledExecutorService.shutdown();
+        if (mLocationNotificationTime >0) {
+            mScheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    long lastLocationUpdateTime = mLocationDataSource.getLastLocationTime();
+                    Log.v(TAG, "Notification task is running");
+                    if ((System.currentTimeMillis() - lastLocationUpdateTime - mLocationNotificationTime * 60 * 1000) >= 0) {
+                        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext).
+                                setSmallIcon(R.drawable.ic_schedule_black_24dp).
+                                setContentTitle("Too long in same place").
+                                setContentText("You are too long in the same place! Let's move on!");
+                        mNotificationManager.notify(NOTIFICATION_CODE, builder.build());
+                        mScheduledExecutorService.shutdownNow();
+                    }
                 }
-            }
-        };
-        mScheduledExecutorService.schedule(runnable, 1, TimeUnit.MINUTES);
+            };
+            mScheduledExecutorService.scheduleAtFixedRate(runnable, 1, 1, TimeUnit.MINUTES);
+        } else {
+            mScheduledExecutorService.shutdown();
+        }
     }
 
     LocationThread(Context context) {
