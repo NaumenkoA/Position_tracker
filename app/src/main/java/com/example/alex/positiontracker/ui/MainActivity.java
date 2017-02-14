@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private long mSelectedToDate;
 
     //notification time in minutes
-    private int mLocationNotificationTime = 60;
+    private int mLocationNotificationTime;
 
     @Override
     protected void onStop() {
@@ -118,9 +118,10 @@ public class MainActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked) {
                     mIsNotificationActivated = true;
-                    //setNotification(true);
+                    setNotification(mLocationNotificationTime);
                 } else {
                     mIsNotificationActivated = false;
+                    setNotification(0);
                 }
             }
         });
@@ -208,6 +209,7 @@ public class MainActivity extends AppCompatActivity {
                 int minute = data.getIntExtra(TimePickerActivity.RESULT_MINUTE, 0);
                 mLocationNotificationTime = hour*60 + minute;
                 mNotificationPeriodTextView.setText(hour + ":" + convertMinuteToString(minute));
+                setNotification(mLocationNotificationTime);
             }
         }
     }
@@ -246,14 +248,9 @@ public class MainActivity extends AppCompatActivity {
 
 }
 
-    private void setNotification (boolean isNotificationActivated) {
-        if (isNotificationActivated) {
+    private void setNotification (int notificationPeriod) {
             Intent intent = new Intent(MainActivity.this, LocationService.class);
-            intent.putExtra(LOCATION_NOTIFICATION_TIME, mLocationNotificationTime);
+            intent.putExtra(LOCATION_NOTIFICATION_TIME, notificationPeriod);
             startService(intent);
-        } else {
-            Intent intent = new Intent(MainActivity.this, LocationService.class);
-            startService(intent);
-        }
-    }
+       }
  }

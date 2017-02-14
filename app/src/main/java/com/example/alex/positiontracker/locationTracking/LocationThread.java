@@ -23,7 +23,7 @@ class LocationThread extends Thread implements LocationProvider.LocationCallback
     private static final int NOTIFICATION_CODE = 1;
     private Context mContext;
     private LocationDataSource mLocationDataSource;
-    private int mLocationNotificationTime = 60;
+    private int mLocationNotificationTime;
     private NotificationManager mNotificationManager;
     private ScheduledExecutorService mScheduledExecutorService;
 
@@ -52,7 +52,9 @@ class LocationThread extends Thread implements LocationProvider.LocationCallback
             };
             mScheduledExecutorService.scheduleAtFixedRate(runnable, 1, 1, TimeUnit.MINUTES);
         } else {
-            mScheduledExecutorService.shutdown();
+            if (mScheduledExecutorService != null) {
+                mScheduledExecutorService.shutdownNow();
+            }
         }
     }
 
