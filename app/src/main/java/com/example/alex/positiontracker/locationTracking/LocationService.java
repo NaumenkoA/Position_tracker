@@ -23,9 +23,9 @@ public class LocationService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.v (TAG, "Location service is started");
         int notificationTime = 0;
-        if (intent!=null) {
-            notificationTime = intent.getIntExtra(MainActivity.LOCATION_NOTIFICATION_TIME, 0);
-        }
+//        if (intent!=null) {
+//            notificationTime = intent.getIntExtra(MainActivity.LOCATION_NOTIFICATION_TIME, 0);
+//        }
         mLocationThread.start();
         NotificationManager manager = (NotificationManager) getSystemService (NOTIFICATION_SERVICE);
         mLocationThread.setNotificationManager(manager);

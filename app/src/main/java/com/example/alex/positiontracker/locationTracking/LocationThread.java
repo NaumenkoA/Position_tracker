@@ -25,11 +25,12 @@ class LocationThread extends Thread implements LocationProvider.LocationCallback
     private LocationDataSource mLocationDataSource;
     private int mLocationNotificationTime;
     private NotificationManager mNotificationManager;
+    private LocationProvider mLocationProvider;
     private ScheduledExecutorService mScheduledExecutorService;
 
     void setLocationNotificationTime(int locationNotificationTime) {
         mLocationNotificationTime = locationNotificationTime;
-        setNewNotification();
+        //setNewNotification();
     }
 
     private void setNewNotification() {
@@ -65,13 +66,14 @@ class LocationThread extends Thread implements LocationProvider.LocationCallback
 
     @Override
     public void run() {
-        LocationProvider locationProvider = new LocationProvider(mContext, this);
-        locationProvider.connect();
+        mLocationProvider = new LocationProvider(mContext, this);
+        mLocationProvider.connect();
         Log.v (TAG, "Location thread is running");
           }
 
     @Override
     public void interrupt() {
+        mLocationProvider.disconnect();
         Log.v (TAG, "Location thread is stopped" + "");
         super.interrupt();
     }
@@ -82,7 +84,7 @@ class LocationThread extends Thread implements LocationProvider.LocationCallback
         double longitude = location.getLongitude();
 
         Log.v(TAG, "New location logged");
-        setNewNotification();
+        //setNewNotification();
 
             Geocoder geocoder;
 

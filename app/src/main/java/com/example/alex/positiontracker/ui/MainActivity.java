@@ -26,9 +26,6 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-
-
-
 public class MainActivity extends AppCompatActivity {
 
     private static final String LOCATION_TRACKING_STATE = "location_tracking_state";
@@ -118,10 +115,10 @@ public class MainActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked) {
                     mIsNotificationActivated = true;
-                    setNotification(mLocationNotificationTime);
+                    //setNotification(mLocationNotificationTime);
                 } else {
                     mIsNotificationActivated = false;
-                    setNotification(0);
+                    //setNotification(0);
                 }
             }
         });
@@ -209,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
                 int minute = data.getIntExtra(TimePickerActivity.RESULT_MINUTE, 0);
                 mLocationNotificationTime = hour*60 + minute;
                 mNotificationPeriodTextView.setText(hour + ":" + convertMinuteToString(minute));
-                setNotification(mLocationNotificationTime);
+                //setNotification(mLocationNotificationTime);
             }
         }
     }
@@ -249,8 +246,8 @@ public class MainActivity extends AppCompatActivity {
 }
 
     private void setNotification (int notificationPeriod) {
-            Intent intent = new Intent(MainActivity.this, LocationService.class);
-            intent.putExtra(LOCATION_NOTIFICATION_TIME, notificationPeriod);
-            startService(intent);
+//            Intent intent = new Intent(MainActivity.this, LocationService.class);
+//            intent.putExtra(LOCATION_NOTIFICATION_TIME, notificationPeriod);
+//            startService(intent);
        }
  }
