@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 class LocationThread extends Thread implements LocationProvider.LocationCallback {
@@ -27,15 +28,17 @@ class LocationThread extends Thread implements LocationProvider.LocationCallback
     private NotificationManager mNotificationManager;
     private LocationProvider mLocationProvider;
     private ScheduledExecutorService mScheduledExecutorService;
+    private ScheduledFuture mFutureTask;
 
     void setLocationNotificationTime(int locationNotificationTime) {
         mLocationNotificationTime = locationNotificationTime;
-        //setNewNotification();
+        Log.v(TAG, "Set new notification " + mLocationNotificationTime);
+        setNewNotification();
     }
 
     private void setNewNotification() {
-        if (mLocationNotificationTime >0) {
-            mScheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+        cancelCurrentNotificationTask();
+        if (mLocationNotificationTime > 0) {
             Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
@@ -47,17 +50,20 @@ class LocationThread extends Thread implements LocationProvider.LocationCallback
                                 setContentTitle("Too long in same place").
                                 setContentText("You are too long in the same place! Let's move on!");
                         mNotificationManager.notify(NOTIFICATION_CODE, builder.build());
-                        mScheduledExecutorService.shutdownNow();
+                        mFutureTask.cancel(false);
                     }
                 }
             };
-            mScheduledExecutorService.scheduleAtFixedRate(runnable, 1, 1, TimeUnit.MINUTES);
-        } else {
-            if (mScheduledExecutorService != null) {
-                mScheduledExecutorService.shutdownNow();
-            }
+            mFutureTask = mScheduledExecutorService.scheduleAtFixedRate(runnable, 1, 1, TimeUnit.MINUTES);
         }
     }
+
+    private void cancelCurrentNotificationTask() {
+        if (mFutureTask != null) {
+            mFutureTask.cancel(true);
+        }
+        }
+
 
     LocationThread(Context context) {
         mContext = context;
@@ -68,6 +74,7 @@ class LocationThread extends Thread implements LocationProvider.LocationCallback
     public void run() {
         mLocationProvider = new LocationProvider(mContext, this);
         mLocationProvider.connect();
+        mScheduledExecutorService = Executors.newScheduledThreadPool(1);
         Log.v (TAG, "Location thread is running");
           }
 
@@ -84,7 +91,7 @@ class LocationThread extends Thread implements LocationProvider.LocationCallback
         double longitude = location.getLongitude();
 
         Log.v(TAG, "New location logged");
-        //setNewNotification();
+        setNewNotification();
 
             Geocoder geocoder;
 

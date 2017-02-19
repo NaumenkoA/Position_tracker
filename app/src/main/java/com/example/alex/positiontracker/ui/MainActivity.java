@@ -1,13 +1,18 @@
 package com.example.alex.positiontracker.ui;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -37,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int TO_DATE_REQUEST = 102;
     private static final int NOTIFICATION_TIME_REQUEST = 103;
     public static final int PERMISSIONS_REQUEST_CODE = 9001;
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     private boolean mIsTrackingActivated;
     private boolean mIsNotificationActivated;
@@ -45,15 +51,41 @@ public class MainActivity extends AppCompatActivity {
 
     //notification time in minutes
     private int mLocationNotificationTime;
+    private LocationService mLocationService;
+    private boolean mBound = false;
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            mBound = true;
+            LocationService.LocalBinder localBinder = (LocationService.LocalBinder) iBinder;
+            mLocationService = localBinder.getService();
+            Log.v (TAG, "Service bound");
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Log.v (TAG, "Service unbound");
+            mBound = false;
+        }
+    };
+
 
     @Override
-    protected void onStop() {
+    protected void onDestroy() {
         SharedPreferences.Editor edit = PreferenceManager.getDefaultSharedPreferences(this).edit();
         edit.putBoolean(LOCATION_TRACKING_STATE, mIsTrackingActivated);
         edit.putBoolean(NOTIFICATION_STATE, mIsNotificationActivated);
         edit.putInt(LOCATION_NOTIFICATION_TIME, mLocationNotificationTime);
         edit.apply();
-        super.onStop();
+        unbindLocationService();
+        super.onDestroy();
+    }
+
+    private void unbindLocationService() {
+        if (mBound) {
+            unbindService(mServiceConnection);
+            mBound = false;
+        }
     }
 
     @BindView(R.id.locationSwitch) Switch mLocationSwitch;
@@ -74,11 +106,14 @@ public class MainActivity extends AppCompatActivity {
         mIsTrackingActivated = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(LOCATION_TRACKING_STATE, false);
         mIsNotificationActivated = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(NOTIFICATION_STATE, false);
         mLocationNotificationTime = PreferenceManager.getDefaultSharedPreferences(this).getInt(LOCATION_NOTIFICATION_TIME, 60);
+        if (mIsTrackingActivated) {
+            bindLocationService();
+        }
         int hour = mLocationNotificationTime/60;
         mNotificationPeriodTextView.setText(hour + ":" + convertMinuteToString(mLocationNotificationTime - hour*60));
         mLocationSwitch.setChecked(mIsTrackingActivated);
-        mNotificationSwitch.setChecked(mIsNotificationActivated);
         mNotificationSwitch.setEnabled(mIsTrackingActivated);
+        mNotificationSwitch.setChecked(mIsNotificationActivated);
         mSelectedFromDate = getCurrentDate(false);
         mSelectedToDate = getCurrentDate(true);
         mFromDateTextView.setText(getStringFromUnixTime(mSelectedFromDate));
@@ -105,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     mNotificationSwitch.setEnabled(false);
                     Intent intent = new Intent(MainActivity.this, LocationService.class);
+                    unbindLocationService();
                     stopService(intent);
                 }
             }
@@ -113,12 +149,13 @@ public class MainActivity extends AppCompatActivity {
         mNotificationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                bindLocationService();
                 if (isChecked) {
+                    mLocationService.setNotification(mLocationNotificationTime);
                     mIsNotificationActivated = true;
-                    //setNotification(mLocationNotificationTime);
                 } else {
+                    mLocationService.stopNotifications();
                     mIsNotificationActivated = false;
-                    //setNotification(0);
                 }
             }
         });
@@ -164,11 +201,17 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void bindLocationService() {
+        Intent intent = new Intent(MainActivity.this, LocationService.class);
+        bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
     private void startPositionTracking() {
         mIsTrackingActivated = true;
         mNotificationSwitch.setEnabled(true);
         Intent intent = new Intent(MainActivity.this, LocationService.class);
         startService(intent);
+        bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     private long getCurrentDate(boolean endOfDay) {
@@ -206,8 +249,11 @@ public class MainActivity extends AppCompatActivity {
                 int minute = data.getIntExtra(TimePickerActivity.RESULT_MINUTE, 0);
                 mLocationNotificationTime = hour*60 + minute;
                 mNotificationPeriodTextView.setText(hour + ":" + convertMinuteToString(minute));
-                //setNotification(mLocationNotificationTime);
-            }
+                if (mIsNotificationActivated){
+                    bindLocationService();
+                    mLocationService.setNotification(mLocationNotificationTime);
+                    }
+                }
         }
     }
 
@@ -244,10 +290,4 @@ public class MainActivity extends AppCompatActivity {
         }
 
 }
-
-    private void setNotification (int notificationPeriod) {
-//            Intent intent = new Intent(MainActivity.this, LocationService.class);
-//            intent.putExtra(LOCATION_NOTIFICATION_TIME, notificationPeriod);
-//            startService(intent);
-       }
  }
