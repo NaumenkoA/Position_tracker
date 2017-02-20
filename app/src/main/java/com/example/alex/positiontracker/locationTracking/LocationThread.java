@@ -80,7 +80,9 @@ class LocationThread extends Thread implements LocationProvider.LocationCallback
 
     @Override
     public void interrupt() {
-        mLocationProvider.disconnect();
+        if (mLocationProvider != null) {
+            mLocationProvider.disconnect();
+        }
         Log.v (TAG, "Location thread is stopped" + "");
         super.interrupt();
     }

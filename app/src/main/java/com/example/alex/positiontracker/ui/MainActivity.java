@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int TO_DATE_REQUEST = 102;
     private static final int NOTIFICATION_TIME_REQUEST = 103;
     public static final int PERMISSIONS_REQUEST_CODE = 9001;
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = "Service_binding:";
 
     private boolean mIsTrackingActivated;
     private boolean mIsNotificationActivated;
@@ -53,21 +53,36 @@ public class MainActivity extends AppCompatActivity {
     private int mLocationNotificationTime;
     private LocationService mLocationService;
     private boolean mBound = false;
+
     private ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             mBound = true;
             LocationService.LocalBinder localBinder = (LocationService.LocalBinder) iBinder;
             mLocationService = localBinder.getService();
-            Log.v (TAG, "Service bound");
+            Log.v (TAG, " bound");
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            Log.v (TAG, "Service unbound");
+            Log.v (TAG, " unbound");
             mBound = false;
         }
     };
+
+    @Override
+    protected void onPause() {
+        unbindLocationService();
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        if (mIsTrackingActivated) {
+            bindLocationService();
+        }
+        super.onResume();
+    }
 
 
     @Override
@@ -77,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
         edit.putBoolean(NOTIFICATION_STATE, mIsNotificationActivated);
         edit.putInt(LOCATION_NOTIFICATION_TIME, mLocationNotificationTime);
         edit.apply();
-        unbindLocationService();
         super.onDestroy();
     }
 
@@ -106,9 +120,6 @@ public class MainActivity extends AppCompatActivity {
         mIsTrackingActivated = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(LOCATION_TRACKING_STATE, false);
         mIsNotificationActivated = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(NOTIFICATION_STATE, false);
         mLocationNotificationTime = PreferenceManager.getDefaultSharedPreferences(this).getInt(LOCATION_NOTIFICATION_TIME, 60);
-        if (mIsTrackingActivated) {
-            bindLocationService();
-        }
         int hour = mLocationNotificationTime/60;
         mNotificationPeriodTextView.setText(hour + ":" + convertMinuteToString(mLocationNotificationTime - hour*60));
         mLocationSwitch.setChecked(mIsTrackingActivated);
@@ -149,8 +160,7 @@ public class MainActivity extends AppCompatActivity {
         mNotificationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                bindLocationService();
-                if (isChecked) {
+                 if (isChecked) {
                     mLocationService.setNotification(mLocationNotificationTime);
                     mIsNotificationActivated = true;
                 } else {
@@ -211,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
         mNotificationSwitch.setEnabled(true);
         Intent intent = new Intent(MainActivity.this, LocationService.class);
         startService(intent);
-        bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+        bindLocationService();
     }
 
     private long getCurrentDate(boolean endOfDay) {
@@ -250,7 +260,6 @@ public class MainActivity extends AppCompatActivity {
                 mLocationNotificationTime = hour*60 + minute;
                 mNotificationPeriodTextView.setText(hour + ":" + convertMinuteToString(minute));
                 if (mIsNotificationActivated){
-                    bindLocationService();
                     mLocationService.setNotification(mLocationNotificationTime);
                     }
                 }
